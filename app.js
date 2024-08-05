@@ -4,6 +4,7 @@ const path = require("path");
 const app = express();
 const userSchema = require("./models/user");
 const bcrypt = require("bcrypt");
+const jwt = require("jsonwebtoken");
 
 //middlewares
 app.set("view engine", "ejs");
@@ -20,16 +21,22 @@ app.post("/create", (req, res) => {
   let { name, email, password, age } = req.body;
   bcrypt.genSalt(10, (err, salt) => {
     bcrypt.hash(password, salt, async (err, hash) => {
-      console.log(hash);
       let user = await userSchema.create({
         username: name,
         email,
         password: hash,
         age,
       });
+      let token = jwt.sign({ email }, "shhhhhhhh");
+      res.cookie(token, token);
       res.send(user);
     });
   });
+});
+
+app.get("/logout", (req, res) => {
+  res.cookie("token", "");
+  res.redirect("/");
 });
 
 app.listen(3000);
