@@ -40,9 +40,13 @@ app.get("/login", (req, res) => {
 
 app.post("/userlogin", async (req, res) => {
   let user = await userSchema.findOne({ email: req.body.email });
-  if (!user) res.send("Something went wrong..");
+  if (!user) return res.send("Something went wrong..");
   bcrypt.compare(req.body.password, user.password, (err, result) => {
-    if (result) res.send("You are logged in..");
+    if (result) {
+      let token = jwt.sign({ email: user.email }, "shhhhhhhhh");
+      res.cookie("token", token);
+      return res.send("You are logged in..");
+    }
     res.send("Something went wrong");
   });
 });
