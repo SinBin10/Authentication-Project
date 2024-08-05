@@ -34,6 +34,19 @@ app.post("/create", (req, res) => {
   });
 });
 
+app.get("/login", (req, res) => {
+  res.render("login");
+});
+
+app.post("/userlogin", async (req, res) => {
+  let user = await userSchema.findOne({ email: req.body.email });
+  if (!user) res.send("Something went wrong..");
+  bcrypt.compare(req.body.password, user.password, (err, result) => {
+    if (result) res.send("You are logged in..");
+    res.send("Something went wrong");
+  });
+});
+
 app.get("/logout", (req, res) => {
   res.cookie("token", "");
   res.redirect("/");
